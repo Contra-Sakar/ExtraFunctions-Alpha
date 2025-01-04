@@ -1,8 +1,9 @@
-import flixel.tweens.FlxTween;
-import flixel.tweens.FlxEase;
-import objects.StrumNote;
-
-function onCreate() {
+-- | ExtraFunctionsLua v0.0.3 |
+function onCreate()
+    addHaxeLibrary('FlxTween','flixel.tweens')
+    addHaxeLibrary('FlxEase','flixel.tweens')
+    addHaxeLibrary('StrumNote','objects')
+    runHaxeCode([[
     createGlobalCallback('noteTweenScale',function(tag:String,note:Int,?scaleX:Float,?scaleY:Float,?duration:Float,?ease:String) {
         if (duration == null || duration <= 0) duration = 0.5;
         if (ease == null || Reflect.field(FlxEase,ease) == null) ease = 'linear';
@@ -27,4 +28,14 @@ function onCreate() {
             }));
         }
     });
-}
+    createGlobalCallback('print',function(text:String) {
+        debugPrint(text);
+    });
+    createGlobalCallback('setObjectPosition',function(tag:String,?ValorX:Float,?ValorY:Float) {
+        if (ValorX == null) ValorX = parentLua.call('getProperty',[tag + '.x']);
+        if (ValorY == null) ValorY = parentLua.call('getProperty',[tag + '.y']);
+        parentLua.call('setProperty',[tag + '.x',ValorX]);
+        parentLua.call('setProperty',[tag + '.y',ValorY]);
+    });
+    ]])
+end
