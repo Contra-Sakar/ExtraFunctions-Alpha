@@ -1,4 +1,4 @@
--- | ExtraFunctionsLua v0.0.3 |
+-- | ExtraFunctionsLua v0.0.4 |
 function onCreate()
     addHaxeLibrary('FlxTween','flixel.tweens')
     addHaxeLibrary('FlxEase','flixel.tweens')
