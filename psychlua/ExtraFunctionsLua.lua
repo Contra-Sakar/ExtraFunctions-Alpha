@@ -1,4 +1,4 @@
--- | ExtraFunctionsLua v0.0.4 |
+-- | ExtraFunctionsLua v0.0.5 |
 function onCreate()
     addHaxeLibrary('FlxTween','flixel.tweens')
     addHaxeLibrary('FlxEase','flixel.tweens')
@@ -32,12 +32,20 @@ function onCreate()
         debugPrint(text);
     });
     createGlobalCallback('setObjectPosition',function(tag:String,?ValorX:Float,?ValorY:Float) {
-        if (ValorX == null) ValorX = parentLua.call('getProperty',[tag + '.x']);
-        if (ValorY == null) ValorY = parentLua.call('getProperty',[tag + '.y']);
-        parentLua.call('setProperty',[tag + '.x',ValorX]);
-        parentLua.call('setProperty',[tag + '.y',ValorY]);
+    var baseTag:String = tag.split('.')[0];
+    var property:String = tag.indexOf('.') != -1 ? tag.split('.')[1] : '';
+    if (property != '' && property != 'scale') {
+        debugPrint('The property "' + property + '" is not valid. Only position or scale adjustment is allowed.\nLa propiedad "' + property + '" no es válida. Solo se permite ajustar posición o escala.',FlxColor.RED);
+        return;
+    }
+    var propX:String = property == 'scale' ? '.scale.x' : '.x';
+    var propY:String = property == 'scale' ? '.scale.y' : '.y';
+    if (ValorX == null) ValorX = parentLua.call('getProperty',[baseTag + propX]);
+    if (ValorY == null) ValorY = parentLua.call('getProperty',[baseTag + propY]);
+        parentLua.call('setProperty',[baseTag + propX,ValorX]);
+        parentLua.call('setProperty',[baseTag + propY,ValorY]);
     });
-    createGlobalCallback('setCameraStrum',function(strumGroup:String,camera:String,?unspawnNotes:Bool = true,?scrollFactor:Dynamic = null) {
+    createGlobalCallback('setStrumCam',function(strumGroup:String,camera:String,?unspawnNotes:Bool = true,?scrollFactor:Dynamic = null) {
     var targetGroup = Reflect.field(game,strumGroup);
     var cameraObj = Reflect.field(game,camera);
     if (targetGroup == null || cameraObj == null) {
@@ -47,7 +55,7 @@ function onCreate()
     for (strumOp in targetGroup) {
         strumOp.cameras = [cameraObj];
         if (scrollFactor != null && scrollFactor.length == 2) {
-            strumOp.scrollFactor.set(scrollFactor[0], scrollFactor[1]);
+            strumOp.scrollFactor.set(scrollFactor[0],scrollFactor[1]);
         }
     }
     if (unspawnNotes == null || unspawnNotes) {
@@ -57,7 +65,7 @@ function onCreate()
                 strumGroup == 'strumLineNotes') {
                 note.cameras = [cameraObj];
                 if (scrollFactor != null && scrollFactor.length == 2) {
-                    note.scrollFactor.set(scrollFactor[0], scrollFactor[1]);
+                    note.scrollFactor.set(scrollFactor[0],scrollFactor[1]);
                 }
             }
         }
@@ -67,7 +75,7 @@ function onCreate()
         for (splash in noteSplashes) {
             splash.cameras = [cameraObj];
             if (scrollFactor != null && scrollFactor.length == 2) {
-                splash.scrollFactor.set(scrollFactor[0], scrollFactor[1]);
+                splash.scrollFactor.set(scrollFactor[0],scrollFactor[1]);
                 }
             }
         }
