@@ -1,9 +1,10 @@
--- | ExtraFunctionsLua v0.0.5 |
+-- | ExtraFunctionsLua v0.0.7 |
 function onCreate()
-    addHaxeLibrary('FlxTween','flixel.tweens')
-    addHaxeLibrary('FlxEase','flixel.tweens')
-    addHaxeLibrary('StrumNote','objects')
     runHaxeCode([[
+    import flixel.tweens.FlxTween;
+    import flixel.tweens.FlxEase;
+    import objects.StrumNote;
+
     createGlobalCallback('noteTweenScale',function(tag:String,note:Int,?scaleX:Float,?scaleY:Float,?duration:Float,?ease:String) {
         if (duration == null || duration <= 0) duration = 0.5;
         if (ease == null || Reflect.field(FlxEase,ease) == null) ease = 'linear';
@@ -80,5 +81,38 @@ function onCreate()
             }
         }
     });
+        // Psych Engine 1.0
+        createGlobalCallback('setCameraScroll',function(x:Float,y:Float) {
+            FlxG.camera.scroll.set(x - FlxG.width / 2,y - FlxG.height / 2);
+        });
+
+        createGlobalCallback('setCameraFollowPoint',function(x:Float,y:Float) {
+            game.camFollow.setPosition(x,y);
+        });
+
+        createGlobalCallback('addCameraScroll',function(?x:Float = 0,?y:Float = 0) {
+            FlxG.camera.scroll.add(x,y);
+        });
+
+        createGlobalCallback('addCameraFollowPoint',function(?x:Float = 0,?y:Float = 0) {
+            game.camFollow.x += x;
+            game.camFollow.y += y;
+        });
+
+        createGlobalCallback('getCameraScrollX',function() {
+            return FlxG.camera.scroll.x + FlxG.width / 2;
+        });
+
+        createGlobalCallback('getCameraScrollY',function() {
+            return FlxG.camera.scroll.y + FlxG.height / 2;
+        });
+
+        createGlobalCallback('getCameraFollowX',function() {
+            return game.camFollow.x;
+        });
+
+        createGlobalCallback('getCameraFollowY', function() {
+            return game.camFollow.y;
+        });
     ]])
 end
