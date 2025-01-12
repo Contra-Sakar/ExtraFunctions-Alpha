@@ -1,4 +1,4 @@
--- | ExtraFunctionsLua v0.0.7 |
+-- | ExtraFunctionsLua v0.0.8 |
 function onCreate()
     runHaxeCode([[
     import flixel.tweens.FlxTween;
@@ -46,6 +46,15 @@ function onCreate()
         parentLua.call('setProperty',[baseTag + propX,ValorX]);
         parentLua.call('setProperty',[baseTag + propY,ValorY]);
     });
+    createGlobalCallback('setObjectCamera',function(obj:String,camera:String) {
+        return parentLua.call('setObjectCameraFix',[Obj,camera]);
+    });
+    createGlobalCallback('setLuaSpriteCamera',function(obj:String,camera:String) {
+        if (]]..(luaDebugMode and luaDeprecatedWarnings)..[[) {
+            debugPrint('setLuaSpriteCamera is deprecated! Use setObjectCamera instead\nsetLuaSpriteCamera está obsoleto! Usa setObjectCamera en su lugar');
+        }
+        return parentLua.call('setObjectCameraFix',[Obj,camera]);
+    });
     createGlobalCallback('setStrumCam',function(strumGroup:String,camera:String,?unspawnNotes:Bool = true,?scrollFactor:Dynamic = null) {
     var targetGroup = Reflect.field(game,strumGroup);
     var cameraObj = Reflect.field(game,camera);
@@ -85,34 +94,44 @@ function onCreate()
         createGlobalCallback('setCameraScroll',function(x:Float,y:Float) {
             FlxG.camera.scroll.set(x - FlxG.width / 2,y - FlxG.height / 2);
         });
-
         createGlobalCallback('setCameraFollowPoint',function(x:Float,y:Float) {
             game.camFollow.setPosition(x,y);
         });
-
         createGlobalCallback('addCameraScroll',function(?x:Float = 0,?y:Float = 0) {
             FlxG.camera.scroll.add(x,y);
         });
-
         createGlobalCallback('addCameraFollowPoint',function(?x:Float = 0,?y:Float = 0) {
             game.camFollow.x += x;
             game.camFollow.y += y;
         });
-
         createGlobalCallback('getCameraScrollX',function() {
             return FlxG.camera.scroll.x + FlxG.width / 2;
         });
-
         createGlobalCallback('getCameraScrollY',function() {
             return FlxG.camera.scroll.y + FlxG.height / 2;
         });
-
         createGlobalCallback('getCameraFollowX',function() {
             return game.camFollow.x;
         });
-
-        createGlobalCallback('getCameraFollowY', function() {
+        createGlobalCallback('getCameraFollowY',function() {
             return game.camFollow.y;
         });
     ]])
+end
+local setObjectCameraOriginal = setObjectCamera
+function setObjectCameraFix(Obj,camera)
+    if version == '1.0' then
+    local cameraMap = {
+        hud = 'camHUD',
+        camhud = 'camHUD',
+        other = 'camOther',
+        camother = 'camOther',
+        default = 'camGame'
+    }
+    local cameraKey = string.lower(camera) or 'default'
+    local AssignedCamera = cameraMap[cameraKey] or cameraMap.default
+    setProperty(Obj..'.camera',instanceArg(AssignedCamera),false,true)
+    else
+        setObjectCameraOriginal(Obj,camera)
+    end
 end
